@@ -1,5 +1,5 @@
 #!/home/arthur/.virtualenvs/ev3py27/bin/python
-
+# a test script for basic motion model
 from ev3.ev3dev import Motor
 from ev3.lego import GyroSensor
 import unittest
