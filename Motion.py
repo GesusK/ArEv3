@@ -1,16 +1,16 @@
-#!/home/arthur/.virtualenvs/ev3py27/bin/python
+__author__ = 'Arthur'
+
 from ev3.ev3dev import Motor
-from ev3.lego import GyroSensor
-import unittest
+from Sensor import Gyro
 import time
 
-#
+  # Driver class used for motion control and attitude adjust
 class Driver():
 
-  # Moving motors
+  # Wheel motors
   left=None;
   right=None;
-  
+
   # Sensors
   gyro=None;
 
@@ -23,50 +23,52 @@ class Driver():
   run_sp=500; # running speed
   t_sp=400; # turning speed
 
+  t_accuracy=2;
+
   def __init__(self):
     self.left=Motor(port=Motor.PORT.B);
     self.right=Motor(port=Motor.PORT.C);
-    self.reset
-        self.gyro=GyroSensor();
+    self.reset();
 
-  def readAngle(self,RESET=0):
-    if(RESET==1):
-      self.gyro.rate;
-    return self.gyro.ang;
+    self.gyro=Gyro();
 
   def reset(self):
-	self.left.reset();
-	self.right.reset();
+    self.left.reset();
+    self.right.reset();
 
   def runForward(self):
-        self.reset();
-	self.left.setup_forever(self.run_sp,speed_regulation = True);
-	self.right.setup_forever(self.run_sp,speed_regulation = True);
-	self.left.start();
-	self.right.start();
+    self.reset();
+    self.left.setup_forever(self.run_sp,speed_regulation = True);
+    self.right.setup_forever(self.run_sp,speed_regulation = True);
+    self.left.start();
+    self.right.start();
+
+  # def forwardDistance(self):
 
   def runBackward(self):
-        self.reset();
-	self.left.setup_forever(-self.run_sp,speed_regulation = True);
-	self.right.setup_forever(-self.run_sp,speed_regulation = True);
-	self.left.start();
-	self.right.start();
+    self.reset();
+    self.left.setup_forever(-self.run_sp,speed_regulation = True);
+    self.right.setup_forever(-self.run_sp,speed_regulation = True);
+    self.left.start();
+    self.right.start();
+
+  # def backwardDistance(self):
 
   def stop(self):
-	self.left.stop();
-	self.right.stop();
+    self.left.stop();
+    self.right.stop();
 
   def turnRightbyAngle(self, ang):
     angtruth = 0;
     angtmp = ang;
     # adjust loop
-    while (abs(angtmp)>3):
+    while (abs(angtmp)>self.t_accuracy):
       angtruth=self.oneAngleTurnRight(angtmp);
       angtmp=angtmp-angtruth;
       #print "Diff: "+str(angtmp);
 
   def oneAngleTurnRight(self, ang):
-    before=self.readAngle(RESET=1);
+    before=self.readAngle();
     #print "Before right turn: "+str(before);
     self.reset();
     self.left.position=0;
@@ -88,14 +90,14 @@ class Driver():
     angtruth = 0;
     angtmp = ang;
     # adjust loop
-    while (abs(angtmp)>3):
+    while (abs(angtmp)>self.t_accuracy):
       angtruth=self.oneAngleTurnLeft(angtmp);
       angtmp=angtmp+angtruth;
       print "Diff: "+str(angtmp);
 
   def oneAngleTurnLeft(self, ang):
-    before=self.readAngle(RESET=1);
-    print "Before right turn: "+str(before);
+    before=self.readAngle();
+    #print "Before right turn: "+str(before);
     self.reset();
     self.right.position=0;
     self.right.setup_position_limited(position_sp=int(ang*self.Rrio), speed_sp=self.t_sp,
@@ -108,15 +110,15 @@ class Driver():
     time.sleep(2);
     self.stop();
     after=self.readAngle();
-    print "After right turn: "+str(after);
+    #print "After right turn: "+str(after);
 
     return after - before;
-    
+
 
 if __name__ == '__main__':
   run=1;
   firstTime=1;
-  k = Mover();
+  k = Driver();
   pre_mode = "w";
   try:
     mode=str(raw_input("command:"));
@@ -127,7 +129,7 @@ if __name__ == '__main__':
     print "pre="+pre_mode+" mode="+mode+" firstTime="+str(firstTime)+" run="+str(run);
     if(firstTime==1 and mode == "w"):
       k.runForward();
-      firstTime=0;  
+      firstTime=0;
     elif(firstTime == 1 and mode == "s"):
       k.runBackward();
       firstTime=0;
@@ -149,7 +151,7 @@ if __name__ == '__main__':
     elif(firstTime == 1):
       firstTime=0;
       print "Wrong input"
-    
+
     if (firstTime != 1):
       new_mode = str(raw_input());
 
@@ -158,4 +160,4 @@ if __name__ == '__main__':
         mode = new_mode;
         firstTime=1;
 
-print "Bye~"
+  print "Bye~"
