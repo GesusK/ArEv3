@@ -1,5 +1,8 @@
 __author__ = 'Arthur'
-
+'''
+A set of classes to support basic sensorings with following sensors:
+    Gyro sensor;
+'''
 from ev3.lego import GyroSensor
 
 class Gyro:
